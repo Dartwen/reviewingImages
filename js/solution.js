@@ -25,6 +25,12 @@ function removeExtension(inputText) {
     return inputText.replace(regExp, '');
 }
 
+// скрыть текст ошибки через 7сек.
+function hideError() {
+    setTimeout(function() {
+        hide(error)
+    }, 7000);
+}
 //разбиваем timestemp, чтобы мы могли отображать дату и время
 function dataTime(timestamp) {
     const options = {
@@ -59,7 +65,6 @@ function newDataFile(){
 
     document.querySelector('#fileInput').addEventListener('change', event => {
         const files = Array.from(event.currentTarget.files);
-
         sendFile(files);
     });
 
@@ -102,28 +107,28 @@ function sendFile(files) {
 
 //получаем информацию о файле
 function getFileInfo(id) {
-    const xhrGetInfo = new XMLHttpRequest();
-    xhrGetInfo.open(
+    const xhrInfo = new XMLHttpRequest();
+    xhrInfo.open(
         'GET',
         `${ws}/pic/${id}`,
         false
     );
-    xhrGetInfo.send();
+    xhrInfo.send();
 
-    getData = JSON.parse(xhrGetInfo.responseText);
+    getData = JSON.parse(xhrInfo.responseText);
     host = `${window.location.origin}${window.location.pathname}?id=${getData.id}`;
 
     wss();
     addBackground(getData);
     burger.style.cssText = ``;
-    showMenu();
+    show();
 
 
     currentImg.addEventListener('load', () => {
         hide(loadImg);
         addWrapforCanvsComm();
         createCanvas();
-        currImg.dataset.load = 'load';
+        currentImg.dataset.load = 'load';
     });
     updCommsForm(getData.comments);
 }
@@ -180,16 +185,17 @@ function updateComments(comment){
         });
 
         if (createNewForm) {
-            const newForm = addCommentForm(comment[id].left + 22, comment[id].top + 14);
+            const newForm = addComment(comment[id].left + 22, comment[id].top + 14);
             newForm.dataset.left = comment[id].left;
             newForm.dataset.top = comment[id].top;
             newForm.style.left = comment[id].left + 'px';
             newForm.style.top = comment[id].top + 'px';
             wrapComments.appendChild(newForm);
             addMessageComment(comment[id], newForm);
-            if (!wrapApp.querySelector('#comments-on').checked) {
-                newForm.style.display = 'none';
+            if (wrapApp.querySelector('#comments-on').checked) {
+                return;
             }
+            newForm.style.display = 'none';
         }
     });
 }
@@ -217,19 +223,191 @@ function addMessageComment(message, form) {
 }
 
 //Форма для комментариев
-function addCommentForm(x, y) {
-    
+function addComment(x, y) {
+    const left = x - 22;
+    const top = y - 14;
+
+    formComment.style.cssText = `
+		top: ${top}px;
+		left: ${left}px;
+		z-index: 2;
+	`;
+
+    formComment.dataset.left = left;
+    formComment.dataset.top = top;
+
+    hide(formComment.querySelector('.loader').parentElement);
+
+    //кнопка "закрыть"
+    formComment.querySelector('.comments__close').addEventListener('click', () => {
+        formComment.querySelector('.comments__marker-checkbox').checked = false;
+    });
+
+//кнопка "отправить"
+    formComment.addEventListener('submit', sendMessage);
+
+    function sendMessage(event) {
+        if (event) event.preventDefault();
+        const message = formComment.querySelector('.comments__input').value;
+        const messageSend = `message=${encodeURIComponent(message)}&left=${encodeURIComponent(left)}&top=${encodeURIComponent(top)}`;
+        commentsSend(messageSend);
+        formComment.querySelector('.loader').parentElement.removeAttribute('style');
+        formComment.querySelector('.comments__input').value = '';
+
+    }
+
+    function commentsSend(message) {
+        fetch(`${ws}/pic/${getData.id}/comments`, {
+            method: 'POST',
+            body: message,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+        })
+            .then(res => res.json())
+            .catch(er => {
+                console.log(er);
+                formComment.querySelector('.loader').parentElement.style.display = 'none';
+            });
+
+    }
+
+    return formComment;
 }
 
-//Режим Публикации!
+
+//drag&drop
+function fileDrop(event){
+    event.preventDefault();
+    hide(error);
+    const files = Array.from(event.dataTransfer.files);
+
+    //выдаем ошибку, при повторном drop изображении
+    switch (currentImg.dataset.load) {
+        case 'load':
+            error.removeAttribute('style');
+            error.lastElementChild.textContent = 'Чтобы загрузить новое изображение, пожалуйста, воспользуйтесь пунктом "Загрузить новое" в меню';
+            hideError();
+            return;
+    }
+
+    //проверяем перетаскиваемый файл, если файл нужного типа, то загружаем, иначе показываем ошибку.
+    files.forEach(file => {
+        switch (file.type) {
+            case 'image/jpeg':
+            case 'image/png':
+                sendFile(files);
+                break;
+            default:
+                error.removeAttribute('style');
+                break;
+        }
+    });
+}
+
+//показываются пункты меню
+function show(){
+    menu.dataset.state = 'default';
+
+    Array.from(menu.querySelectorAll('.mode')).forEach(menuItem => {
+        menuItem.dataset.state = '';
+        menuItem.addEventListener('click', () => {
+            if (!menuItem.classList.contains('new')) {
+                menu.dataset.state = 'selected';
+                menuItem.dataset.state = 'selected';
+            }
+
+            if (menuItem.classList.contains('share')) {
+                menu.querySelector('.menu__url').value = host;
+            }
+        })
+    })
+}
+
+//создаем формы на обертке для комментариев
+function createComment(event) {
+    if (!(comments.dataset.state === 'selected')) {
+        return;
+    } else if (!wrapApp.querySelector('#comments-on').checked) {
+        return;
+    }
+    wrapComments.appendChild(addComment(event.offsetX, event.offsetY));
+}
+
+//"показать комментарии"
+function checkboxOn() {
+    const forms = document.querySelectorAll('.comments__form');
+    Array.from(forms).forEach(form => {
+        form.style.display = '';
+    })
+}
+
+//"скрыть комментарии"
+function checkboxOff() {
+    const forms = document.querySelectorAll('.comments__form');
+    Array.from(forms).forEach(form => {
+        form.style.display = 'none';
+    })
+}
+
+//Копируем ссылку из пункта меню "Поделиться"
+function copyURL(){
+    menu.querySelector('.menu__url').select();
+
+    try{
+        let safely = document.execCommand('copy');
+        let message;
+        message = safely ? 'успешно' : 'нет';
+        console.log(`URL ${msg} скопирован`);
+    }
+    catch{
+        console.log('Ошибка копирования')
+    }
+    window.getSelection().removeAllRanges();
+}
+
+let url = new URL(`${window.location.href}`);
+let argumentId = url.searchParams.get('id'); //ищем параметр 'id'
+function findId(){
+    
+}
+// ----------режим "Публикация"------------------------------------------------------------------------------------
 
 // скрываем пункты меню для режима "Публикации"
 currentImg.src = '';
+
+menu.dataset.state = 'initial';
 wrapApp.dataset.state ='';
 hide(burger);
 
 //убираем комментарии в режиме "Публикации"
-wrapApp.removeChild(comments);
+wrapApp.removeChild(document.querySelector('.comments__form'));
 
 //открываем окно выбора файла для загрузки
 newPic.addEventListener('click', newDataFile);
+
+//загрузка файла drag&drop
+wrapApp.addEventListener('drop', fileDrop);
+wrapApp.addEventListener('dragover', event => event.preventDefault());
+
+// ----------режим "Рецензирование"---------------------------------------------------------------------------------
+
+//при клике на burger показывается меню
+burger.addEventListener('click', show);
+
+//при клике на холсте создаем форму комментариев
+canvas.addEventListener('click', createComment);
+
+//Переключатели "Показывать комментарии"
+menu.querySelector('.menu__toggle-title_on').addEventListener('click', checkboxOn);
+menu.querySelector('#comments-on').addEventListener('click', checkboxOn);
+
+//Переключатели "Скрыть комментарии"
+menu.querySelector('.menu__toggle-title_off').addEventListener('click', checkboxOff);
+menu.querySelector('#comments-off').addEventListener('click', checkboxOff);
+
+// копируем ссылку по клику на кнопку "Копировать" в режиме "Поделиться"
+menu.querySelector('.menu_copy').addEventListener('click', copyURL);
+
+//Находим id из ссылки
+findId(argumentId);
