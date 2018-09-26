@@ -14,7 +14,6 @@ let host;
 const selectedImage = document.querySelector('.current-image');
 const loader = document.querySelector('.image-loader');
 const appWrap = document.querySelector('.app');
-const commentForm = document.querySelector('.comments__form');//.cloneNode(true);
 const downloadNew = document.querySelector('.new');
 const menuToggleTittleOn = document.querySelector('.menu__toggle-title_on');
 const commentsOn = document.querySelector('#comments-on');
@@ -157,61 +156,7 @@ let url = new URL(`${window.location.href}`);
 let argumentId = url.searchParams.get('id');
 findId(argumentId);
 
-// для каждого каждого элемента с классом '.menu__color' и если элемент выбран  (checked), получим цвет
-Array.from(colorMenu).forEach(color => {
-    if (color.checked) {
-        selectedColor = getComputedStyle(color.nextElementSibling).backgroundColor;
-    }
-    color.addEventListener('click', (event) => { //при клике на элемент, получим цвет
-        selectedColor = getComputedStyle(event.currentTarget.nextElementSibling).backgroundColor;
-    });
-});
 
-const ctx = canvas.getContext('2d'); //контекст, где мы рисуем
-const PAINT_SIZE = 4; //размер кисти
-let traces = [];
-let sketch = false;
-let redraw = false;
-
-canvas.addEventListener("mousedown", (event) => {
-    if (unloadStorageItem('menu').querySelector('.draw').dataset.state !== 'selected') {
-        return;
-    }
-    sketch = true;
-    const trace = [];
-    trace.color = selectedColor;
-    trace.push(doDot(event.offsetX, event.offsetY));
-    traces.push(trace);
-    redraw = true;
-});
-
-canvas.addEventListener("mouseup", () => {
-    unloadStorageItem('menu').style.zIndex = '1';
-    sketch = false;
-});
-
-canvas.addEventListener('mouseleave', () => {
-    sketch = false;
-});
-
-canvas.addEventListener("mousemove", (event) => {
-    if (sketch) {
-        unloadStorageItem('menu').style.zIndex = '0';
-        traces[traces.length - 1].push(doDot(event.offsetX, event.offsetY));
-        redraw = true;
-        cleanSendMask();
-    }
-});
-
-const cleanSendMask = clean(maskStatus, 1000);
-
-beat();
-
-//разрываем соединение при закрытии страницы
-window.addEventListener('beforeunload', () => {
-    connection.close();
-    console.log('Веб-сокет закрыт')
-});
 
 //Производим копирование ссылки при нажатии кнопки Копировать в Поделиться
 function duplicate() {
@@ -493,14 +438,116 @@ function addCommentWrapperCanvas() {
 }
 
 
+function templateJSengine(block) {
+   /* if ((block === undefined) || (block === null) || (block === false)) {
+        return document.createTextNode('');
+    }
+    if ((typeof block === 'string') || (typeof block === 'number') || (block === true)) {
+        return document.createTextNode(block);
+    }*/
+    if (Array.isArray(block)) {
+        return block.reduce(function (f, item) {
+            f.appendChild(templateJSengine(item));
 
+            return f;
+        }, document.createDocumentFragment());
+    }
 
-//Форма комментариев
-function addComment(x, y) {
+    const element = document.createElement(block.tag);
 
-    /*const formComment = document.createElement('form');
-    formComment.classList.add('comments__form');
-    formComment.innerHTML = `
+    element.classList.add(block.cls);
+
+    if (block.attrs) {
+        Object.keys(block.attrs).forEach(key => {
+            element.setAttribute(key, block.attrs[key]);
+        });
+    }
+
+    if (block.content) {
+        element.appendChild(templateJSengine(block.content));
+    }
+
+    return element;
+}
+
+let html = {
+    tag: 'form',
+    cls: 'comments__form',
+    content: [
+        {
+            tag: 'span',
+            cls: 'comments__marker'
+        },
+        {
+            tag: 'input',
+            cls: 'comments__marker-checkbox',
+            attrs: {
+                type: 'checkbox'
+            }
+        },
+        {
+            tag: 'div',
+            cls: 'comments__body',
+            content: [
+                {
+                    tag: 'div',
+                    cls: 'comment',
+                    content: [
+                        {
+                            tag: 'div',
+                            cls: 'loader',
+                            content: [
+                                {
+                                    tag: 'span'
+                                },
+                                {
+                                    tag: 'span'
+                                },
+                                {
+                                    tag: 'span'
+                                },
+                                {
+                                    tag: 'span'
+                                },
+                                {
+                                    tag: 'span'
+                                }
+                            ]
+                        }
+                    ]
+                }
+
+            ]
+        },
+        {
+            tag: 'textarea',
+            cls: 'comments__input',
+            attrs: {
+                type: 'text',
+                placeholder: 'Напишите ответ..'
+            }
+        },
+        {
+            tag: 'input',
+            cls: 'comments__close',
+            attrs: {
+                type: 'button',
+                value: 'Закрыть'
+            }
+        },
+        {
+            tag: 'input',
+            cls: 'comments__submit',
+            attrs: {
+                type: 'submit',
+                value: 'Отправить'
+            }
+        },
+
+    ]
+};
+
+/*let htmlComment =  `
 		<span class="comments__marker"></span>
 		<input type="checkbox" class="comments__marker-checkbox">
 		<div class="comments__body">
@@ -518,71 +565,13 @@ function addComment(x, y) {
 			<input class="comments__submit" type="submit" value="Отправить">
 		</div>`;*/
 
-    function createComment() {
-        let comment = document.createElement('form');
-        comment.className = 'comments__form';
-        document.body.appendChild(comment);
+//Форма комментариев
+function addComment(x, y) {
+    let formComment = document.body.appendChild(templateJSengine(html));
+    /* const formComment = document.createElement('form');
+     formComment.className = 'comments__form';
+     formComment.insertAdjacentHTML('afterbegin', htmlComment);*/
 
-        let span = document.createElement('span');
-        span.className = 'comments__marker';
-        comment.appendChild(span);
-
-        let input = document.createElement('input');
-        input.className = 'comments__marker-checkbox';
-        input.type = 'checkbox';
-        comment.appendChild(input);
-
-        let div = document.createElement('div');
-        div.className = 'comments__body';
-        comment.appendChild(div);
-
-        let divComment = document.createElement('div');
-        divComment.className = 'comment';
-        div.appendChild(divComment);
-
-        let divLoader = document.createElement('div');
-        divLoader.className = 'loader';
-        divComment.appendChild(divLoader);
-
-
-       //     let spanLoader = document.createElement('span');
-         //   divLoader.appendChild(spanLoader);
-
-
-
-        let textarea = document.createElement('textarea');
-        textarea.className = 'comments__input';
-        textarea.type = 'text';
-        textarea.placeholder = 'Напишите ответ...';
-        div.appendChild(textarea);
-
-        let inputButton = document.createElement('input');
-        inputButton.className = 'comments__close';
-        inputButton.type = 'button';
-        inputButton.value = 'Закрыть';
-        div.appendChild(inputButton);
-
-        let inputSubmit = document.createElement('input');
-        inputSubmit.className = 'comments__submit';
-        inputSubmit.type = 'submit';
-        inputSubmit.value = 'Отправить';
-        div.appendChild(inputSubmit);
-
-
-        return comment;
-    }
-
-    function showComments() {
-        const commentNodes = createComment();
-        const fragment = commentNodes.reduce((fragment, currentValue) => {
-            fragment.appendChild(currentValue);
-            return fragment;
-        }, document.createDocumentFragment());
-
-        document.body.appendChild(fragment);
-    }
-
-    let formComment = createComment();
 
     const left = x - 22;
     const top = y - 14;
@@ -806,3 +795,59 @@ function beat() {
 
     window.requestAnimationFrame(beat);
 }
+
+// для каждого каждого элемента с классом '.menu__color' и если элемент выбран  (checked), получим цвет
+Array.from(colorMenu).forEach(color => {
+    if (color.checked) {
+        selectedColor = getComputedStyle(color.nextElementSibling).backgroundColor;
+    }
+    color.addEventListener('click', (event) => { //при клике на элемент, получим цвет
+        selectedColor = getComputedStyle(event.currentTarget.nextElementSibling).backgroundColor;
+    });
+});
+
+const ctx = canvas.getContext('2d'); //контекст, где мы рисуем
+const PAINT_SIZE = 4; //размер кисти
+let traces = [];
+let sketch = false;
+let redraw = false;
+
+canvas.addEventListener("mousedown", (event) => {
+    if (unloadStorageItem('menu').querySelector('.draw').dataset.state !== 'selected') {
+        return;
+    }
+    sketch = true;
+    const trace = [];
+    trace.color = selectedColor;
+    trace.push(doDot(event.offsetX, event.offsetY));
+    traces.push(trace);
+    redraw = true;
+});
+
+canvas.addEventListener("mouseup", () => {
+    unloadStorageItem('menu').style.zIndex = '1';
+    sketch = false;
+});
+
+canvas.addEventListener('mouseleave', () => {
+    sketch = false;
+});
+
+canvas.addEventListener("mousemove", (event) => {
+    if (sketch) {
+        unloadStorageItem('menu').style.zIndex = '0';
+        traces[traces.length - 1].push(doDot(event.offsetX, event.offsetY));
+        redraw = true;
+        cleanSendMask();
+    }
+});
+
+const cleanSendMask = clean(maskStatus, 1000);
+
+beat();
+
+//разрываем соединение при закрытии страницы
+window.addEventListener('beforeunload', () => {
+    connection.close();
+    console.log('Веб-сокет закрыт')
+});
