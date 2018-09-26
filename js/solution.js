@@ -14,7 +14,7 @@ let host;
 const selectedImage = document.querySelector('.current-image');
 const loader = document.querySelector('.image-loader');
 const appWrap = document.querySelector('.app');
-const commentForm = document.querySelector('.comments__form').cloneNode(true);
+const commentForm = document.querySelector('.comments__form');//.cloneNode(true);
 const downloadNew = document.querySelector('.new');
 const menuToggleTittleOn = document.querySelector('.menu__toggle-title_on');
 const commentsOn = document.querySelector('#comments-on');
@@ -219,7 +219,7 @@ function duplicate() {
     try {
         let safely = document.execCommand('copy');
         if (safely) {
-          console.log(`URL скопирован`);
+            console.log(`URL скопирован`);
         } else {
             console.log(`URL не скопирован`);
         }
@@ -492,39 +492,129 @@ function addCommentWrapperCanvas() {
     });
 }
 
+
+
+
 //Форма комментариев
 function addComment(x, y) {
+
+    /*const formComment = document.createElement('form');
+    formComment.classList.add('comments__form');
+    formComment.innerHTML = `
+		<span class="comments__marker"></span>
+		<input type="checkbox" class="comments__marker-checkbox">
+		<div class="comments__body">
+			<div class="comment">
+				<div class="loader">
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
+			</div>
+			<textarea class="comments__input" type="text" placeholder="Напишите ответ..."></textarea>
+			<input class="comments__close" type="button" value="Закрыть">
+			<input class="comments__submit" type="submit" value="Отправить">
+		</div>`;*/
+
+    function createComment() {
+        let comment = document.createElement('form');
+        comment.className = 'comments__form';
+        document.body.appendChild(comment);
+
+        let span = document.createElement('span');
+        span.className = 'comments__marker';
+        comment.appendChild(span);
+
+        let input = document.createElement('input');
+        input.className = 'comments__marker-checkbox';
+        input.type = 'checkbox';
+        comment.appendChild(input);
+
+        let div = document.createElement('div');
+        div.className = 'comments__body';
+        comment.appendChild(div);
+
+        let divComment = document.createElement('div');
+        divComment.className = 'comment';
+        div.appendChild(divComment);
+
+        let divLoader = document.createElement('div');
+        divLoader.className = 'loader';
+        divComment.appendChild(divLoader);
+
+
+       //     let spanLoader = document.createElement('span');
+         //   divLoader.appendChild(spanLoader);
+
+
+
+        let textarea = document.createElement('textarea');
+        textarea.className = 'comments__input';
+        textarea.type = 'text';
+        textarea.placeholder = 'Напишите ответ...';
+        div.appendChild(textarea);
+
+        let inputButton = document.createElement('input');
+        inputButton.className = 'comments__close';
+        inputButton.type = 'button';
+        inputButton.value = 'Закрыть';
+        div.appendChild(inputButton);
+
+        let inputSubmit = document.createElement('input');
+        inputSubmit.className = 'comments__submit';
+        inputSubmit.type = 'submit';
+        inputSubmit.value = 'Отправить';
+        div.appendChild(inputSubmit);
+
+
+        return comment;
+    }
+
+    function showComments() {
+        const commentNodes = createComment();
+        const fragment = commentNodes.reduce((fragment, currentValue) => {
+            fragment.appendChild(currentValue);
+            return fragment;
+        }, document.createDocumentFragment());
+
+        document.body.appendChild(fragment);
+    }
+
+    let formComment = createComment();
+
     const left = x - 22;
     const top = y - 14;
 
-    commentForm.style.cssText = `
+    formComment.style.cssText = `
 		top: ${top}px;
 		left: ${left}px;
 		z-index: 2;
 	`;
-    commentForm.dataset.left = left;
-    commentForm.dataset.top = top;
+    formComment.dataset.left = left;
+    formComment.dataset.top = top;
 
-    hiddenElement(commentForm.querySelector('.loader').parentElement);
+    hiddenElement(formComment.querySelector('.loader').parentElement);
 
     //кнопка "закрыть"
-    commentForm.querySelector('.comments__close').addEventListener('click', () => {
-        commentForm.querySelector('.comments__marker-checkbox').checked = false;
+    formComment.querySelector('.comments__close').addEventListener('click', () => {
+        formComment.querySelector('.comments__marker-checkbox').checked = false;
     });
 
     // кнопка "отправить"
-    commentForm.addEventListener('submit', sendMessages);
+    formComment.addEventListener('submit', sendMessages);
 
     // Отправляем комментарии
     function sendMessages(event) {
         if (event) {
             event.preventDefault();
         }
-        const message = commentForm.querySelector('.comments__input').value;
+        const message = formComment.querySelector('.comments__input').value;
         const sendMessage = `message=${encodeURIComponent(message)}&left=${encodeURIComponent(left)}&top=${encodeURIComponent(top)}`;
         sendComment(sendMessage);
-        showElement(commentForm.querySelector('.loader').parentElement);
-        commentForm.querySelector('.comments__input').value = '';
+        showElement(formComment.querySelector('.loader').parentElement);
+        formComment.querySelector('.comments__input').value = '';
     }
 
     // Отправка комментария на сервер
@@ -539,11 +629,11 @@ function addComment(x, y) {
             .then(result => result.json())
             .catch(e => {
                 console.log(e);
-                commentForm.querySelector('.loader').parentElement.style.display = 'none';
+                formComment.querySelector('.loader').parentElement.style.display = 'none';
             });
     }
 
-    return commentForm;
+    return formComment;
 }
 
 //обновление форм с комментриями
@@ -599,7 +689,7 @@ function addingCommentForm(msg, form) {
 
     const messageComment = document.createElement('p');
     messageComment.classList.add('comment__message');
-    messageComment.textContent = message.message;
+    messageComment.textContent = msg.message;
     divMessageNew.appendChild(messageComment);
 
     form.querySelector('.comments__body').insertBefore(divMessageNew, divLoaderParent);
@@ -617,15 +707,13 @@ function webSocket() {
                 canvas.style.background = ``;
             }
         }
-
         if (JSON.parse(event.data).event === 'comment') {
             putCommentFormWss(JSON.parse(event.data).comment);
         }
 
-        if (JSON.parse(event.data).event !== 'mask') {
-            return;
+        if (JSON.parse(event.data).event === 'mask') {
+            canvas.style.background = `url(${JSON.parse(event.data).url})`;
         }
-        canvas.style.background = `url(${JSON.parse(event.data).url})`;
     });
 
 }
@@ -663,7 +751,7 @@ function flatTraceAmong(p1, p2) {
     ctx.quadraticCurveTo(...p1, ...cp);
 }
 
-// рисуем линию
+//линия
 function flatTrace(points) {
     ctx.beginPath();
     ctx.lineWidth = PAINT_SIZE;

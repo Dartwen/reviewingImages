@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7073fbc0-8351-4b89-8ecf-eb6566690f6f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/js/solution1.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/solution.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/solution.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -24,26 +26,28 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="css" value="1" />
           <entry key="html" value="1" />
-          <entry key="js" value="7" />
+          <entry key="js" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
+          <entry key="CSS" value="1" />
           <entry key="HTML" value="1" />
-          <entry key="JavaScript" value="7" />
+          <entry key="JavaScript" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="html" value="38" />
-          <entry key="js" value="8383" />
+          <entry key="html" value="46" />
+          <entry key="js" value="11278" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="HTML" value="38" />
-          <entry key="JavaScript" value="8383" />
+          <entry key="HTML" value="46" />
+          <entry key="JavaScript" value="11278" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -55,8 +59,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1377">
-              <caret line="108" column="42" lean-forward="true" selection-start-line="108" selection-start-column="42" selection-end-line="108" selection-end-column="42" />
+            <state relative-caret-position="136">
+              <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
@@ -67,9 +71,16 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/solution.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="484">
-              <caret line="522" column="51" lean-forward="true" selection-start-line="522" selection-start-column="51" selection-end-line="522" selection-end-column="51" />
+            <state relative-caret-position="-255">
+              <caret line="507" column="16" selection-start-line="507" selection-start-column="16" selection-end-line="507" selection-end-column="16" />
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/css/styles.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-918" />
           </provider>
         </entry>
       </file>
@@ -97,6 +108,7 @@
       <find>url</find>
       <find>getGlobalStorage</find>
       <find>makePoint</find>
+      <find>commentForm</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -107,6 +119,7 @@
       <list>
         <option value="$PROJECT_DIR$/js/solution-work.js" />
         <option value="$PROJECT_DIR$/js/solution-work1.js" />
+        <option value="$PROJECT_DIR$/js/solution1.js" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/js/solution.js" />
       </list>
@@ -119,10 +132,10 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-149" />
-    <option name="y" value="13" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
     <option name="width" value="867" />
-    <option name="height" value="688" />
+    <option name="height" value="735" />
   </component>
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="2" id="Add" />
@@ -138,6 +151,11 @@
             <path>
               <item name="hj-24-Dartwen" type="b2602c69:ProjectViewProjectNode" />
               <item name="hj-24-Dartwen" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="hj-24-Dartwen" type="b2602c69:ProjectViewProjectNode" />
+              <item name="hj-24-Dartwen" type="462c0819:PsiDirectoryNode" />
+              <item name="css" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="hj-24-Dartwen" type="b2602c69:ProjectViewProjectNode" />
@@ -179,12 +197,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1537475507067</updated>
-      <workItem from="1537475508592" duration="67946000" />
+      <workItem from="1537475508592" duration="97665000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="67946000" />
+    <option name="totallyTimeSpent" value="97665000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
@@ -195,7 +213,7 @@
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="Terminal" weight="0.3295082" />
       <window_info anchor="bottom" id="Event Log" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3295082" />
@@ -249,10 +267,22 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/js/solution1.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="528">
+          <caret line="763" column="1" selection-start-line="763" selection-start-column="1" selection-end-line="763" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/css/styles.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-918" />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1377">
-          <caret line="108" column="42" lean-forward="true" selection-start-line="108" selection-start-column="42" selection-end-line="108" selection-end-column="42" />
+        <state relative-caret-position="136">
+          <caret line="8" lean-forward="true" selection-start-line="8" selection-end-line="8" />
           <folding>
             <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
@@ -261,8 +291,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/solution.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="484">
-          <caret line="522" column="51" lean-forward="true" selection-start-line="522" selection-start-column="51" selection-end-line="522" selection-end-column="51" />
+        <state relative-caret-position="-255">
+          <caret line="507" column="16" selection-start-line="507" selection-start-column="16" selection-end-line="507" selection-end-column="16" />
         </state>
       </provider>
     </entry>
