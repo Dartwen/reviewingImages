@@ -156,8 +156,6 @@ let url = new URL(`${window.location.href}`);
 let argumentId = url.searchParams.get('id');
 findId(argumentId);
 
-
-
 //Производим копирование ссылки при нажатии кнопки Копировать в Поделиться
 function duplicate() {
     urlMenu.select();
@@ -235,7 +233,6 @@ function fileDownload() {
         }
         sendFiles(array);
     });
-
     fileCall.click();
     unloadStorageItem('menu').removeChild(fileCall);
 }
@@ -256,7 +253,7 @@ function dragDropFile() {
             return;
     }
 
-    //если файл нужного типа, то загружаем, иначе показываем ошибку.
+    //если файл нужного типа, производим загрузку, иначе показываем ошибку.
     array.forEach(file => {
         switch (file.type) {
             case 'image/jpeg':
@@ -273,7 +270,6 @@ function dragDropFile() {
 //загружаем изображение на сервер
 function sendFiles(files) {
     const formData = new FormData();
-
     files.forEach(file => {
         const title = removeFileExtension(file.name);
         formData.append('title', title);
@@ -375,14 +371,14 @@ function displayMenu() {
 
 //скрыть комментарии
 function checkboxOff() {
-    Array.from(document.querySelectorAll('.comments__form')).forEach(form => {
+    Array.from(document.getElementsByClassName('comments__form')).forEach(form => {
         form.style.display = 'none';
     })
 }
 
 //показать комментарии
 function checkboxOn() {
-    Array.from(document.querySelectorAll('.comments__form')).forEach(form => {
+    Array.from(document.getElementsByClassName('comments__form')).forEach(form => {
         form.style.display = '';
     })
 }
@@ -393,22 +389,6 @@ function createCommentForm(event) {
         return;
     }
     wrapCanvas.appendChild(addComment(event.offsetX, event.offsetY));
-}
-
-//функция создания холста для рисования
-function buildCanvas() {
-    const width = getComputedStyle(appWrap.querySelector('.current-image')).width.slice(0, -2);
-    const height = getComputedStyle(appWrap.querySelector('.current-image')).height.slice(0, -2);
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.zIndex = '1';
-    canvas.style.position = 'absolute';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    wrapCanvas.appendChild(canvas);
 }
 
 //создаём саму обёртку для комментариев
@@ -437,14 +417,8 @@ function addCommentWrapperCanvas() {
     });
 }
 
-
+//функция гененрирования формы комментария
 function templateJSengine(block) {
-   /* if ((block === undefined) || (block === null) || (block === false)) {
-        return document.createTextNode('');
-    }
-    if ((typeof block === 'string') || (typeof block === 'number') || (block === true)) {
-        return document.createTextNode(block);
-    }*/
     if (Array.isArray(block)) {
         return block.reduce(function (f, item) {
             f.appendChild(templateJSengine(item));
@@ -470,6 +444,7 @@ function templateJSengine(block) {
     return element;
 }
 
+//форма комментрия, сформированная в виде объекта с ключами
 let html = {
     tag: 'form',
     cls: 'comments__form',
@@ -515,95 +490,81 @@ let html = {
                             ]
                         }
                     ]
+                },
+                {
+                    tag: 'textarea',
+                    cls: 'comments__input',
+                    attrs: {
+                        type: 'text',
+                        placeholder: 'Напишите ответ..'
+                    }
+                },
+                {
+                    tag: 'input',
+                    cls: 'comments__close',
+                    attrs: {
+                        type: 'button',
+                        value: 'Закрыть'
+                    }
+                },
+                {
+                    tag: 'input',
+                    cls: 'comments__submit',
+                    attrs: {
+                        type: 'submit',
+                        value: 'Отправить'
+                    }
                 }
 
             ]
-        },
-        {
-            tag: 'textarea',
-            cls: 'comments__input',
-            attrs: {
-                type: 'text',
-                placeholder: 'Напишите ответ..'
-            }
-        },
-        {
-            tag: 'input',
-            cls: 'comments__close',
-            attrs: {
-                type: 'button',
-                value: 'Закрыть'
-            }
-        },
-        {
-            tag: 'input',
-            cls: 'comments__submit',
-            attrs: {
-                type: 'submit',
-                value: 'Отправить'
-            }
-        },
+        }
+
 
     ]
 };
 
-/*let htmlComment =  `
-		<span class="comments__marker"></span>
-		<input type="checkbox" class="comments__marker-checkbox">
-		<div class="comments__body">
-			<div class="comment">
-				<div class="loader">
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-					<span></span>
-				</div>
-			</div>
-			<textarea class="comments__input" type="text" placeholder="Напишите ответ..."></textarea>
-			<input class="comments__close" type="button" value="Закрыть">
-			<input class="comments__submit" type="submit" value="Отправить">
-		</div>`;*/
-
 //Форма комментариев
 function addComment(x, y) {
-    let formComment = document.body.appendChild(templateJSengine(html));
-    /* const formComment = document.createElement('form');
-     formComment.className = 'comments__form';
-     formComment.insertAdjacentHTML('afterbegin', htmlComment);*/
-
-
+    let commentForm = document.body.appendChild(templateJSengine(html));
     const left = x - 22;
     const top = y - 14;
-
-    formComment.style.cssText = `
+    commentForm.style.cssText = `
 		top: ${top}px;
 		left: ${left}px;
 		z-index: 2;
 	`;
-    formComment.dataset.left = left;
-    formComment.dataset.top = top;
+    commentForm.dataset.left = left;
+    commentForm.dataset.top = top;
 
-    hiddenElement(formComment.querySelector('.loader').parentElement);
-
+    hiddenElement(commentForm.querySelector('.loader').parentElement);
     //кнопка "закрыть"
-    formComment.querySelector('.comments__close').addEventListener('click', () => {
-        formComment.querySelector('.comments__marker-checkbox').checked = false;
+    commentForm.querySelector('.comments__close').addEventListener('click', () => {
+        commentForm.querySelector('.comments__marker-checkbox').checked = false;
     });
 
+  //  commentForm.addEventListener('click', closeComments);
+
+   // function closeComments(event){
+      /*  if(event.target.querySelector('.comments__marker-checkbox').checked === true){
+            return;
+        }*/
+      //  event.target.querySelector('.comments__marker-checkbox').checked = true;
+       // for (let check of  commentForm.querySelectorAll('.comments__marker-checkbox'))
+      //  {
+   //         check.checked = false;
+  //      }
+  //  }
     // кнопка "отправить"
-    formComment.addEventListener('submit', sendMessages);
+    commentForm.addEventListener('submit', sendMessages);
 
     // Отправляем комментарии
     function sendMessages(event) {
-        if (event) {
-            event.preventDefault();
-        }
-        const message = formComment.querySelector('.comments__input').value;
+        if (event) event.preventDefault();
+        const message = commentForm.querySelector('.comments__input').value;
         const sendMessage = `message=${encodeURIComponent(message)}&left=${encodeURIComponent(left)}&top=${encodeURIComponent(top)}`;
         sendComment(sendMessage);
-        showElement(formComment.querySelector('.loader').parentElement);
-        formComment.querySelector('.comments__input').value = '';
+        showElement(commentForm.querySelector('.loader').parentElement);
+        commentForm.querySelector('.comments__input').value = '';
     }
 
     // Отправка комментария на сервер
@@ -618,11 +579,11 @@ function addComment(x, y) {
             .then(result => result.json())
             .catch(e => {
                 console.log(e);
-                formComment.querySelector('.loader').parentElement.style.display = 'none';
+                commentForm.querySelector('.loader').parentElement.style.display = 'none';
             });
     }
 
-    return formComment;
+    return commentForm;
 }
 
 //обновление форм с комментриями
@@ -639,13 +600,14 @@ function refreshCommentForm(comment) {
         Array.from(appWrap.querySelectorAll('.comments__form')).forEach(form => {
 
             //добавляем сообщение в форму с заданными координатами left и top
-            if (+form.dataset.left === showComments[id].left && +form.dataset.top === showComments[id].top) {
-                form.querySelector('.loader').parentElement.style.display = 'none';
-                addingCommentForm(comment[id], form);
-                requiredNewForm = false;
+            if (+form.dataset.left === showComments[id].left) {
+                if (+form.dataset.top === showComments[id].top) {
+                    form.querySelector('.loader').parentElement.style.display = 'none';
+                    addingCommentForm(comment[id], form);
+                    requiredNewForm = false;
+                }
             }
         });
-
         //создаем форму и добавляем в нее сообщение
         if (requiredNewForm) {
             const newForm = addComment(comment[id].left + 22, comment[id].top + 14);
@@ -727,6 +689,22 @@ function findId(id) {
     openComments();
 }
 
+//функция создания холста для рисования
+function buildCanvas() {
+    const width = getComputedStyle(appWrap.querySelector('.current-image')).width.slice(0, -2);
+    const height = getComputedStyle(appWrap.querySelector('.current-image')).height.slice(0, -2);
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.zIndex = '1';
+    canvas.style.position = 'absolute';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    wrapCanvas.appendChild(canvas);
+}
+
 // кисть
 function circle(point) {
     ctx.beginPath();
@@ -735,9 +713,9 @@ function circle(point) {
 }
 
 //кривая между точками
-function flatTraceAmong(p1, p2) {
-    const cp = p1.map((coord, i) => (coord + p2[i]) / 2);
-    ctx.quadraticCurveTo(...p1, ...cp);
+function flatTraceAmong(point1, point2) {
+    const cp = point1.map((coord, i) => (coord + point2[i]) / 2);
+    ctx.quadraticCurveTo(...point1, ...cp);
 }
 
 //линия
@@ -845,7 +823,6 @@ canvas.addEventListener("mousemove", (event) => {
 const cleanSendMask = clean(maskStatus, 1000);
 
 beat();
-
 //разрываем соединение при закрытии страницы
 window.addEventListener('beforeunload', () => {
     connection.close();
