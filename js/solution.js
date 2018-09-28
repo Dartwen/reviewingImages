@@ -488,9 +488,10 @@ function addCommentWrapperCanvas() {
     });
 }
 
-
+//Форма комментариев
+function addComment(x, y) {
 //функция гененрирования формы комментария
-/*function templateJSengine(block) {
+function templateJSengine(block) {
     if (Array.isArray(block)) {
         return block.reduce(function (f, item) {
             f.appendChild(templateJSengine(item));
@@ -593,28 +594,9 @@ let html = {
 
 
     ]
-};*/
-const html = `<span class="comments__marker"></span><input type="checkbox" class="comments__marker-checkbox">
-        <div class="comments__body">
-            <div class="comment">
-                <div class="loader">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-            <textarea class="comments__input" type="text" placeholder="Напишите ответ..."></textarea>
-            <input class="comments__close" type="button" value="Закрыть">
-            <input class="comments__submit" type="submit" value="Отправить">
-        </div>`;
-//Форма комментариев
-function addComment(x, y) {
-    const commentForm = document.createElement('form');
-    commentForm.className = 'comments__form';
-    commentForm.insertAdjacentHTML('afterbegin', html);
-   // let commentForm = document.body.appendChild(templateJSengine(html));
+};
+
+   let commentForm = document.body.appendChild(templateJSengine(html));
     const left = x - 22;
     const top = y - 14;
     commentForm.style.cssText = `
