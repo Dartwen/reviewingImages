@@ -28,6 +28,12 @@ let minY, minX, maxX, maxY;
 let shiftX = 0;
 let shiftY = 0;
 
+const ctx = canvas.getContext('2d'); //контекст, где мы рисуем
+const PAINT_SIZE = 4; //размер кисти
+let traces = [];
+let sketch = false;
+let redraw = false;
+
 // Перемещение бургера
 function dragBurger(event) {
     if (!event.target.classList.contains('drag')) {
@@ -79,6 +85,7 @@ function constrain(use, delay = 0) {
         }
     }
 }
+
 
 document.addEventListener('mousedown', dragBurger);
 document.addEventListener('mousemove', constrain(drag));
@@ -213,6 +220,55 @@ function clean(use, delay = 0) {
         }, delay)
     };
 }
+// для каждого каждого элемента с классом '.menu__color' и если элемент выбран checked получаем цвет
+Array.from(colorMenu).forEach(color => {
+    if (color.checked) {
+        selectedColor = getComputedStyle(color.nextElementSibling).backgroundColor;
+    }
+    color.addEventListener('click', (event) => { //при клике на элемент, получим цвет
+        selectedColor = getComputedStyle(event.currentTarget.nextElementSibling).backgroundColor;
+    });
+});
+
+
+canvas.addEventListener("mousedown", (event) => {
+    if (unloadStorageItem('menu').querySelector('.draw').dataset.state !== 'selected') {
+        return;
+    }
+    sketch = true;
+    const trace = [];
+    trace.color = selectedColor;
+    trace.push(doDot(event.offsetX, event.offsetY));
+    traces.push(trace);
+    redraw = true;
+});
+
+canvas.addEventListener("mouseup", () => {
+    unloadStorageItem('menu').style.zIndex = '1';
+    sketch = false;
+});
+
+canvas.addEventListener('mouseleave', () => {
+    sketch = false;
+});
+
+canvas.addEventListener("mousemove", (event) => {
+    if (sketch) {
+        unloadStorageItem('menu').style.zIndex = '0';
+        traces[traces.length - 1].push(doDot(event.offsetX, event.offsetY));
+        redraw = true;
+        cleanSendMask();
+    }
+});
+
+const cleanSendMask = clean(maskStatus, 1000);
+
+beat();
+//разрываем соединение при закрытии страницы
+window.addEventListener('beforeunload', () => {
+    connection.close();
+    console.log('Веб-сокет закрыт')
+});
 
 //Режим Публикация
 //Функция загрузки изображения
@@ -324,9 +380,10 @@ function getFileInfo(id) {
 
 
     selectedImage.addEventListener('load', () => {
-        buildCanvas();
+
         hiddenElement(loader);
         addCommentWrapperCanvas();
+        buildCanvas();
         selectedImage.dataset.load = 'load';
     });
     refreshCommentForm(dataGet.comments);
@@ -362,7 +419,7 @@ function displayMenu() {
                 menuPoint.dataset.state = 'selected';
             }
             if (menuPoint.classList.contains('share')) {
-                urlMenu.value = host;
+                unloadStorageItem('menu').querySelector('.menu__url').value = host;
             }
         })
     })
@@ -371,14 +428,14 @@ function displayMenu() {
 
 //скрыть комментарии
 function checkboxOff() {
-    Array.from(document.getElementsByClassName('comments__form')).forEach(form => {
+    Array.from(document.querySelectorAll('comments__form')).forEach(form => {
         form.style.display = 'none';
     })
 }
 
 //показать комментарии
 function checkboxOn() {
-    Array.from(document.getElementsByClassName('comments__form')).forEach(form => {
+    Array.from(document.querySelectorAll('comments__form')).forEach(form => {
         form.style.display = '';
     })
 }
@@ -390,7 +447,21 @@ function createCommentForm(event) {
     }
     wrapCanvas.appendChild(addComment(event.offsetX, event.offsetY));
 }
-
+//функция создания холста для рисования
+function buildCanvas() {
+    const width = getComputedStyle(appWrap.querySelector('.current-image')).width.slice(0, -2);
+    const height = getComputedStyle(appWrap.querySelector('.current-image')).height.slice(0, -2);
+    canvas.width = width;
+    canvas.height = height;
+    canvas.style.zIndex = '1';
+    canvas.style.position = 'absolute';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    canvas.style.top = '0';
+    canvas.style.left = '0';
+    wrapCanvas.appendChild(canvas);
+}
 //создаём саму обёртку для комментариев
 function addCommentWrapperCanvas() {
     const width = getComputedStyle(appWrap.querySelector('.current-image')).width;
@@ -417,8 +488,9 @@ function addCommentWrapperCanvas() {
     });
 }
 
+
 //функция гененрирования формы комментария
-function templateJSengine(block) {
+/*function templateJSengine(block) {
     if (Array.isArray(block)) {
         return block.reduce(function (f, item) {
             f.appendChild(templateJSengine(item));
@@ -521,11 +593,28 @@ let html = {
 
 
     ]
-};
-
+};*/
+const html = `<span class="comments__marker"></span><input type="checkbox" class="comments__marker-checkbox">
+        <div class="comments__body">
+            <div class="comment">
+                <div class="loader">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+            <textarea class="comments__input" type="text" placeholder="Напишите ответ..."></textarea>
+            <input class="comments__close" type="button" value="Закрыть">
+            <input class="comments__submit" type="submit" value="Отправить">
+        </div>`;
 //Форма комментариев
 function addComment(x, y) {
-    let commentForm = document.body.appendChild(templateJSengine(html));
+    const commentForm = document.createElement('form');
+    commentForm.className = 'comments__form';
+    commentForm.insertAdjacentHTML('afterbegin', html);
+   // let commentForm = document.body.appendChild(templateJSengine(html));
     const left = x - 22;
     const top = y - 14;
     commentForm.style.cssText = `
@@ -542,18 +631,22 @@ function addComment(x, y) {
         commentForm.querySelector('.comments__marker-checkbox').checked = false;
     });
 
-  //  commentForm.addEventListener('click', closeComments);
+    let check = document.getElementsByClassName('comments__marker-checkbox');
+    (function (){
 
-   // function closeComments(event){
-      /*  if(event.target.querySelector('.comments__marker-checkbox').checked === true){
-            return;
-        }*/
-      //  event.target.querySelector('.comments__marker-checkbox').checked = true;
-       // for (let check of  commentForm.querySelectorAll('.comments__marker-checkbox'))
-      //  {
-   //         check.checked = false;
-  //      }
-  //  }
+
+        for (let i=0; i<check.length; i++){
+            check[i].addEventListener('click', function(){
+                if (this.checked){
+                    for (let j=0; j<check.length; j++){
+                        check[j].checked = false;
+                    }
+                    this.checked = true;
+                }
+            });
+        }
+    })();
+
     // кнопка "отправить"
     commentForm.addEventListener('submit', sendMessages);
 
@@ -600,13 +693,11 @@ function refreshCommentForm(comment) {
         Array.from(appWrap.querySelectorAll('.comments__form')).forEach(form => {
 
             //добавляем сообщение в форму с заданными координатами left и top
-            if (+form.dataset.left === showComments[id].left) {
-                if (+form.dataset.top === showComments[id].top) {
+            if (+form.dataset.left === showComments[id].left && +form.dataset.top === showComments[id].top) {
                     form.querySelector('.loader').parentElement.style.display = 'none';
                     addingCommentForm(comment[id], form);
                     requiredNewForm = false;
                 }
-            }
         });
         //создаем форму и добавляем в нее сообщение
         if (requiredNewForm) {
@@ -689,21 +780,7 @@ function findId(id) {
     openComments();
 }
 
-//функция создания холста для рисования
-function buildCanvas() {
-    const width = getComputedStyle(appWrap.querySelector('.current-image')).width.slice(0, -2);
-    const height = getComputedStyle(appWrap.querySelector('.current-image')).height.slice(0, -2);
-    canvas.width = width;
-    canvas.height = height;
-    canvas.style.zIndex = '1';
-    canvas.style.position = 'absolute';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-    wrapCanvas.appendChild(canvas);
-}
+
 
 // кисть
 function circle(point) {
@@ -774,57 +851,3 @@ function beat() {
     window.requestAnimationFrame(beat);
 }
 
-// для каждого каждого элемента с классом '.menu__color' и если элемент выбран  (checked), получим цвет
-Array.from(colorMenu).forEach(color => {
-    if (color.checked) {
-        selectedColor = getComputedStyle(color.nextElementSibling).backgroundColor;
-    }
-    color.addEventListener('click', (event) => { //при клике на элемент, получим цвет
-        selectedColor = getComputedStyle(event.currentTarget.nextElementSibling).backgroundColor;
-    });
-});
-
-const ctx = canvas.getContext('2d'); //контекст, где мы рисуем
-const PAINT_SIZE = 4; //размер кисти
-let traces = [];
-let sketch = false;
-let redraw = false;
-
-canvas.addEventListener("mousedown", (event) => {
-    if (unloadStorageItem('menu').querySelector('.draw').dataset.state !== 'selected') {
-        return;
-    }
-    sketch = true;
-    const trace = [];
-    trace.color = selectedColor;
-    trace.push(doDot(event.offsetX, event.offsetY));
-    traces.push(trace);
-    redraw = true;
-});
-
-canvas.addEventListener("mouseup", () => {
-    unloadStorageItem('menu').style.zIndex = '1';
-    sketch = false;
-});
-
-canvas.addEventListener('mouseleave', () => {
-    sketch = false;
-});
-
-canvas.addEventListener("mousemove", (event) => {
-    if (sketch) {
-        unloadStorageItem('menu').style.zIndex = '0';
-        traces[traces.length - 1].push(doDot(event.offsetX, event.offsetY));
-        redraw = true;
-        cleanSendMask();
-    }
-});
-
-const cleanSendMask = clean(maskStatus, 1000);
-
-beat();
-//разрываем соединение при закрытии страницы
-window.addEventListener('beforeunload', () => {
-    connection.close();
-    console.log('Веб-сокет закрыт')
-});
