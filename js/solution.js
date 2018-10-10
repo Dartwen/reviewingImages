@@ -42,8 +42,8 @@ function dragBurger(event) {
     movingBurger = event.target.parentElement;
     minX = appWrap.offsetLeft;
     minY = appWrap.offsetTop;
-    maxX = appWrap.offsetLeft + appWrap.offsetWidth - movingBurger.offsetWidth;
-    maxY = appWrap.offsetTop + appWrap.offsetHeight - movingBurger.offsetHeight;
+    maxX = appWrap.offsetWidth - (movingBurger.offsetWidth + 1);
+    maxY = appWrap.offsetHeight - (movingBurger.offsetHeight + 1);
     shiftX = event.pageX - event.target.getBoundingClientRect().left - window.pageXOffset;
     shiftY = event.pageY - event.target.getBoundingClientRect().top - window.pageYOffset;
 }
@@ -129,7 +129,7 @@ getTheItemInTheStore('error');
 
 //Первый режим - режим Публикации
 selectedImage.src = '';//без фона
-//уюираем меню режима Публикации
+//убираем меню режима Публикации
 unloadStorageItem('menu').dataset.state = 'initial';
 appWrap.dataset.state = '';
 //скрываем бургер
@@ -220,6 +220,7 @@ function clean(use, delay = 0) {
         }, delay)
     };
 }
+
 // для каждого каждого элемента с классом '.menu__color' и если элемент выбран checked получаем цвет
 Array.from(colorMenu).forEach(color => {
     if (color.checked) {
@@ -325,6 +326,7 @@ function dragDropFile() {
 
 //загружаем изображение на сервер
 function sendFiles(files) {
+
     const formData = new FormData();
     files.forEach(file => {
         const title = removeFileExtension(file.name);
@@ -378,7 +380,6 @@ function getFileInfo(id) {
     unloadStorageItem('burger').style.cssText = ``;
     displayMenu();
 
-
     selectedImage.addEventListener('load', () => {
 
         hiddenElement(loader);
@@ -392,24 +393,28 @@ function getFileInfo(id) {
 //Режим Рецензирования
 //меню Комментарии
 function openComments() {
+
     unloadStorageItem('menu').dataset.state = 'default';
-    Array.from(unloadStorageItem('menu').getElementsByClassName('mode')).forEach(menuPoint => {
+    Array.from(unloadStorageItem('menu').querySelectorAll('.mode')).forEach(menuPoint => {
         if (!menuPoint.classList.contains('comments')) {
             return;
         }
         unloadStorageItem('menu').dataset.state = 'selected';
         menuPoint.dataset.state = 'selected';
-    })
+    });
+
 }
 
 //фон
 function appendBackdrop(file) {
     selectedImage.src = file.url;
 
+
 }
 
 //показ пунктов меню
 function displayMenu() {
+    delEmptyChats();
     unloadStorageItem('menu').dataset.state = 'default';
     Array.from(unloadStorageItem('menu').getElementsByClassName('mode')).forEach(menuPoint => {
         menuPoint.dataset.state = '';
@@ -426,27 +431,43 @@ function displayMenu() {
 
 }
 
+//Комментарий сворачивается при клике на другой комментарий
+function hideAllComments() {
+    const commentsList = document.querySelectorAll('.comments__marker-checkbox');
+
+    if (commentsList) {
+        commentsList.forEach(comment => {
+            comment.checked = false;
+        });
+    }
+}
 //скрыть комментарии
 function checkboxOff() {
-    Array.from(document.querySelectorAll('comments__form')).forEach(form => {
+    delEmptyChats();
+    Array.from(document.querySelectorAll('.comments__form')).forEach(form => {
         form.style.display = 'none';
     })
 }
 
 //показать комментарии
 function checkboxOn() {
-    Array.from(document.querySelectorAll('comments__form')).forEach(form => {
+    delEmptyChats();
+    Array.from(document.querySelectorAll('.comments__form')).forEach(form => {
         form.style.display = '';
     })
 }
 
 //на обертке создаем формы комментариев
 function createCommentForm(event) {
+    delEmptyChats();
     if (!(unloadStorageItem('menu').querySelector('.comments').dataset.state === 'selected') || !appWrap.querySelector('#comments-on').checked) {
         return;
     }
-    wrapCanvas.appendChild(addComment(event.offsetX, event.offsetY));
+    hideAllComments();
+    wrapCanvas.appendChild(addComment(event.offsetX, event.offsetY)).querySelector('.comments__marker-checkbox').checked = true;
+
 }
+
 //функция создания холста для рисования
 function buildCanvas() {
     const width = getComputedStyle(appWrap.querySelector('.current-image')).width.slice(0, -2);
@@ -462,6 +483,27 @@ function buildCanvas() {
     canvas.style.left = '0';
     wrapCanvas.appendChild(canvas);
 }
+
+//Удаляем указанный чат или все пустые чаты на холсте
+function delEmptyChats(form = null) {
+    if (form && !form.classList.contains('containsMsg')) {
+        wrapCanvas.removeChild(form);
+        return;
+    }
+
+    const comments = document.querySelectorAll('.comments__form');
+
+    if (!comments) {
+        return;
+    }
+
+    comments.forEach(comment => {
+        if (!comment.classList.contains('containsMsg')) {
+            comment.parentElement.removeChild(comment);
+        }
+    });
+}
+
 //создаём саму обёртку для комментариев
 function addCommentWrapperCanvas() {
     const width = getComputedStyle(appWrap.querySelector('.current-image')).width;
@@ -490,113 +532,115 @@ function addCommentWrapperCanvas() {
 
 //Форма комментариев
 function addComment(x, y) {
+    delEmptyChats();
+
 //функция гененрирования формы комментария
-function templateJSengine(block) {
-    if (Array.isArray(block)) {
-        return block.reduce(function (f, item) {
-            f.appendChild(templateJSengine(item));
+    function templateJSengine(block) {
+        if (Array.isArray(block)) {
+            return block.reduce(function (f, item) {
+                f.appendChild(templateJSengine(item));
 
-            return f;
-        }, document.createDocumentFragment());
-    }
-
-    const element = document.createElement(block.tag);
-
-    element.classList.add(block.cls);
-
-    if (block.attrs) {
-        Object.keys(block.attrs).forEach(key => {
-            element.setAttribute(key, block.attrs[key]);
-        });
-    }
-
-    if (block.content) {
-        element.appendChild(templateJSengine(block.content));
-    }
-
-    return element;
-}
-
-//форма комментрия, сформированная в виде объекта с ключами
-let html = {
-    tag: 'form',
-    cls: 'comments__form',
-    content: [
-        {
-            tag: 'span',
-            cls: 'comments__marker'
-        },
-        {
-            tag: 'input',
-            cls: 'comments__marker-checkbox',
-            attrs: {
-                type: 'checkbox'
-            }
-        },
-        {
-            tag: 'div',
-            cls: 'comments__body',
-            content: [
-                {
-                    tag: 'div',
-                    cls: 'comment',
-                    content: [
-                        {
-                            tag: 'div',
-                            cls: 'loader',
-                            content: [
-                                {
-                                    tag: 'span'
-                                },
-                                {
-                                    tag: 'span'
-                                },
-                                {
-                                    tag: 'span'
-                                },
-                                {
-                                    tag: 'span'
-                                },
-                                {
-                                    tag: 'span'
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    tag: 'textarea',
-                    cls: 'comments__input',
-                    attrs: {
-                        type: 'text',
-                        placeholder: 'Напишите ответ..'
-                    }
-                },
-                {
-                    tag: 'input',
-                    cls: 'comments__close',
-                    attrs: {
-                        type: 'button',
-                        value: 'Закрыть'
-                    }
-                },
-                {
-                    tag: 'input',
-                    cls: 'comments__submit',
-                    attrs: {
-                        type: 'submit',
-                        value: 'Отправить'
-                    }
-                }
-
-            ]
+                return f;
+            }, document.createDocumentFragment());
         }
 
+        const element = document.createElement(block.tag);
 
-    ]
-};
+        element.classList.add(block.cls);
 
-   let commentForm = document.body.appendChild(templateJSengine(html));
+        if (block.attrs) {
+            Object.keys(block.attrs).forEach(key => {
+                element.setAttribute(key, block.attrs[key]);
+            });
+        }
+
+        if (block.content) {
+            element.appendChild(templateJSengine(block.content));
+        }
+
+        return element;
+    }
+
+//форма комментрия, сформированная в виде объекта с ключами
+    let html = {
+        tag: 'form',
+        cls: 'comments__form',
+        content: [
+            {
+                tag: 'span',
+                cls: 'comments__marker'
+            },
+            {
+                tag: 'input',
+                cls: 'comments__marker-checkbox',
+                attrs: {
+                    type: 'checkbox'
+                }
+            },
+            {
+                tag: 'div',
+                cls: 'comments__body',
+                content: [
+                    {
+                        tag: 'div',
+                        cls: 'comment',
+                        content: [
+                            {
+                                tag: 'div',
+                                cls: 'loader',
+                                content: [
+                                    {
+                                        tag: 'span'
+                                    },
+                                    {
+                                        tag: 'span'
+                                    },
+                                    {
+                                        tag: 'span'
+                                    },
+                                    {
+                                        tag: 'span'
+                                    },
+                                    {
+                                        tag: 'span'
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        tag: 'textarea',
+                        cls: 'comments__input',
+                        attrs: {
+                            type: 'text',
+                            placeholder: 'Напишите ответ..'
+                        }
+                    },
+                    {
+                        tag: 'input',
+                        cls: 'comments__close',
+                        attrs: {
+                            type: 'button',
+                            value: 'Закрыть'
+                        }
+                    },
+                    {
+                        tag: 'input',
+                        cls: 'comments__submit',
+                        attrs: {
+                            type: 'submit',
+                            value: 'Отправить'
+                        }
+                    }
+
+                ]
+            }
+
+
+        ]
+    };
+
+    let commentForm = document.body.appendChild(templateJSengine(html));
     const left = x - 22;
     const top = y - 14;
     commentForm.style.cssText = `
@@ -606,21 +650,29 @@ let html = {
 	`;
     commentForm.dataset.left = left;
     commentForm.dataset.top = top;
+    hideAllComments();
+  // commentForm.querySelector('.comments__marker-checkbox').checked = true;
 
     hiddenElement(commentForm.querySelector('.loader').parentElement);
     //кнопка "закрыть"
     commentForm.querySelector('.comments__close').addEventListener('click', () => {
+        event.preventDefault();
         commentForm.querySelector('.comments__marker-checkbox').checked = false;
+        delEmptyChats(commentForm);
     });
 
-    let check = document.getElementsByClassName('comments__marker-checkbox');
-    (function (){
+
+  let check = document.getElementsByClassName('comments__marker-checkbox');
 
 
-        for (let i=0; i<check.length; i++){
-            check[i].addEventListener('click', function(){
-                if (this.checked){
-                    for (let j=0; j<check.length; j++){
+    (function () {
+
+        for (let i = 0; i < check.length; i++) {
+
+            check[i].addEventListener('click', function () {
+                delEmptyChats();
+                if (this.checked) {
+                    for (let j = 0; j < check.length; j++) {
                         check[j].checked = false;
                     }
                     this.checked = true;
@@ -640,6 +692,7 @@ let html = {
         sendComment(sendMessage);
         showElement(commentForm.querySelector('.loader').parentElement);
         commentForm.querySelector('.comments__input').value = '';
+
     }
 
     // Отправка комментария на сервер
@@ -676,10 +729,10 @@ function refreshCommentForm(comment) {
 
             //добавляем сообщение в форму с заданными координатами left и top
             if (+form.dataset.left === showComments[id].left && +form.dataset.top === showComments[id].top) {
-                    form.querySelector('.loader').parentElement.style.display = 'none';
-                    addingCommentForm(comment[id], form);
-                    requiredNewForm = false;
-                }
+                form.querySelector('.loader').parentElement.style.display = 'none';
+                addingCommentForm(comment[id], form);
+                requiredNewForm = false;
+            }
         });
         //создаем форму и добавляем в нее сообщение
         if (requiredNewForm) {
@@ -717,6 +770,7 @@ function addingCommentForm(msg, form) {
     divMessageNew.appendChild(messageComment);
 
     form.querySelector('.comments__body').insertBefore(divMessageNew, divLoaderParent);
+    form.classList.add('containsMsg');
 }
 
 //веб-сокет
@@ -761,7 +815,6 @@ function findId(id) {
     getFileInfo(id);
     openComments();
 }
-
 
 
 // кисть
@@ -820,7 +873,7 @@ function maskStatus() {
 }
 
 function beat() {
-    if (unloadStorageItem('menu').offsetHeight > 66) {
+    while (unloadStorageItem('menu').offsetHeight > 66) {
         unloadStorageItem('menu').style.left = (appWrap.offsetWidth - unloadStorageItem('menu').offsetWidth) - 10 + 'px';
     }
 
@@ -828,6 +881,7 @@ function beat() {
     if (redraw) {
         repaint();
         redraw = false;
+
     }
 
     window.requestAnimationFrame(beat);

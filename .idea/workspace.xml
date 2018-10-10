@@ -3,10 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7073fbc0-8351-4b89-8ecf-eb6566690f6f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/solution.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/solution.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/solution1.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/solution1.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/solution2.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/solution2.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -21,10 +18,13 @@
     <session id="-649758421">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
+          <entry key="project.closed" value="3" />
           <entry key="project.open.time.106" value="1" />
           <entry key="project.open.time.3" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.open.time.38" value="1" />
+          <entry key="project.open.time.42" value="1" />
+          <entry key="project.open.time.49" value="1" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -44,13 +44,13 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="html" value="62" />
-          <entry key="js" value="15369" />
+          <entry key="js" value="15793" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="HTML" value="62" />
-          <entry key="JavaScript" value="15369" />
+          <entry key="JavaScript" value="15793" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.js.language.service.starts" />
@@ -58,12 +58,12 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf>
-      <file pinned="false" current-in-tab="true">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="109" column="28" selection-start-line="109" selection-start-column="28" selection-end-line="109" selection-end-column="28" />
+            <state relative-caret-position="17">
+              <caret line="76" column="45" selection-start-line="76" selection-start-column="45" selection-end-line="76" selection-end-column="45" />
               <folding>
                 <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
@@ -71,11 +71,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/solution.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-9601">
-              <caret line="217" column="28" lean-forward="true" selection-start-line="217" selection-start-column="28" selection-end-line="217" selection-end-column="28" />
+            <state relative-caret-position="277">
+              <caret line="645" column="33" lean-forward="true" selection-start-line="645" selection-start-column="33" selection-end-line="645" selection-end-column="33" />
             </state>
           </provider>
         </entry>
@@ -106,6 +106,9 @@
       <find>getGlobalStorage</find>
       <find>makePoint</find>
       <find>commentForm</find>
+      <find>selected</find>
+      <find>dataset.state =</find>
+      <find>initial</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -119,8 +122,8 @@
         <option value="$PROJECT_DIR$/js/fhjffk.html" />
         <option value="$PROJECT_DIR$/js/solution2.js" />
         <option value="$PROJECT_DIR$/js/solution1.js" />
-        <option value="$PROJECT_DIR$/js/solution.js" />
         <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/js/solution.js" />
       </list>
     </option>
   </component>
@@ -198,18 +201,21 @@
       <option name="presentableId" value="Default" />
       <updated>1537475507067</updated>
       <workItem from="1537475508592" duration="143150000" />
-      <workItem from="1538144169328" duration="6518000" />
+      <workItem from="1538144169328" duration="7975000" />
+      <workItem from="1538318074843" duration="2317000" />
+      <workItem from="1539035666447" duration="8754000" />
+      <workItem from="1539203409682" duration="8154000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="149668000" />
+    <option name="totallyTimeSpent" value="170350000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.10342262" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.063244045" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -264,34 +270,22 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/fhjffk.html" />
-    <entry file="file://$PROJECT_DIR$/js/solution2.js">
+    <entry file="file://$PROJECT_DIR$/js/solution2.js" />
+    <entry file="file://$PROJECT_DIR$/js/solution1.js" />
+    <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2792">
-          <caret line="241" lean-forward="true" selection-start-line="241" selection-end-line="241" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/solution1.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="620" column="19" selection-start-line="620" selection-start-column="19" selection-end-line="620" selection-end-column="19" />
+        <state relative-caret-position="17">
+          <caret line="76" column="45" selection-start-line="76" selection-start-column="45" selection-end-line="76" selection-end-column="45" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/js/solution.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-9601">
-          <caret line="217" column="28" lean-forward="true" selection-start-line="217" selection-start-column="28" selection-end-line="217" selection-end-column="28" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="109" column="28" selection-start-line="109" selection-start-column="28" selection-end-line="109" selection-end-column="28" />
-          <folding>
-            <element signature="n#style#0;n#div#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
+        <state relative-caret-position="277">
+          <caret line="645" column="33" lean-forward="true" selection-start-line="645" selection-start-column="33" selection-end-line="645" selection-end-column="33" />
         </state>
       </provider>
     </entry>
