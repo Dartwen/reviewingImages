@@ -15,10 +15,7 @@ const selectedImage = document.querySelector('.current-image');
 const loader = document.querySelector('.image-loader');
 const appWrap = document.querySelector('.app');
 const downloadNew = document.querySelector('.new');
-const menuToggleTittleOn = document.querySelector('.menu__toggle-title_on');
-const commentsOn = document.querySelector('#comments-on');
-const menuToggleTittleOff = document.querySelector('.menu__toggle-title_off');
-const commentsOff = document.querySelector('#comments-off');
+const commentsToggle = document.querySelectorAll('.menu__toggle');
 const copyMenu = document.querySelector('.menu_copy');
 const colorMenu = document.querySelectorAll('.menu__color');
 const urlMenu = document.querySelector('.menu__url');
@@ -115,12 +112,21 @@ function unloadStorageItem(argument) {
 
 // Скрываем элементы
 function hiddenElement(item) {
-    item.style.display = 'none';
+    if (item.classList.contains('image-loader')) {
+        item.classList.remove('messageImg')
+    }
+    item.classList.add('hidden');
+
+
 }
 
 // Показываем элементы
 function showElement(item) {
-    item.style.display = '';
+    if (item.classList.contains('image-loader')) {
+        item.classList.add('messageImg')
+    }
+    item.classList.remove('hidden');
+
 }
 
 getTheItemInTheStore('menu');
@@ -148,12 +154,6 @@ appWrap.addEventListener('dragover', event => event.preventDefault());
 unloadStorageItem('burger').addEventListener('click', displayMenu);
 //при клике на холсте создаем комментарии
 canvas.addEventListener('click', createCommentForm);
-//переключатели Показать комментарии
-menuToggleTittleOn.addEventListener('click', checkboxOn);
-commentsOn.addEventListener('click', checkboxOn);
-// переключатели Скрыть комментарии
-menuToggleTittleOff.addEventListener('click', checkboxOff);
-commentsOff.addEventListener('click', checkboxOff);
 
 //копируем ссылку по нажатию на копку Копировать в Поделиться
 copyMenu.addEventListener('click', duplicate);
@@ -222,7 +222,7 @@ function clean(use, delay = 0) {
 }
 
 // для каждого каждого элемента с классом '.menu__color' и если элемент выбран checked получаем цвет
-Array.from(colorMenu).forEach(color => {
+colorMenu.forEach(color => {
     if (color.checked) {
         selectedColor = getComputedStyle(color.nextElementSibling).backgroundColor;
     }
@@ -282,7 +282,7 @@ function fileDownload() {
     hiddenElement(fileCall);
     unloadStorageItem('menu').appendChild(fileCall);
 
-    document.querySelector('#fileInput').addEventListener('change', (event) => {
+    fileCall.addEventListener('change', (event) => {
         const array = Array.from(event.currentTarget.files);
         if (selectedImage.dataset.load === 'load') {
             deleteComment();
@@ -350,6 +350,7 @@ function sendFiles(files) {
         .then(result => result.json())
         .then(result => {
             getFileInfo(result.id);
+            hiddenElement(loader);
         })
         .catch(e => {
             console.log(e);
@@ -359,7 +360,7 @@ function sendFiles(files) {
 
 //удаление форм комментариев на холсте при загрузке нового изображения
 function deleteComment() {
-    Array.from(appWrap.getElementsByClassName('comments__form')).forEach(i => i.remove());
+    appWrap.querySelectorAll('.comments__form').forEach(i => i.remove());
 }
 
 //информация о файле
@@ -395,7 +396,8 @@ function getFileInfo(id) {
 function openComments() {
 
     unloadStorageItem('menu').dataset.state = 'default';
-    Array.from(unloadStorageItem('menu').querySelectorAll('.mode')).forEach(menuPoint => {
+    showElement(unloadStorageItem('burger'));
+    unloadStorageItem('menu').querySelectorAll('.mode').forEach(menuPoint => {
         if (!menuPoint.classList.contains('comments')) {
             return;
         }
@@ -416,7 +418,8 @@ function appendBackdrop(file) {
 function displayMenu() {
     delEmptyChats();
     unloadStorageItem('menu').dataset.state = 'default';
-    Array.from(unloadStorageItem('menu').getElementsByClassName('mode')).forEach(menuPoint => {
+    showElement(unloadStorageItem('burger'));
+    unloadStorageItem('menu').querySelectorAll('.mode').forEach(menuPoint => {
         menuPoint.dataset.state = '';
         menuPoint.addEventListener('click', () => {
             if (!menuPoint.classList.contains('new')) {
@@ -441,26 +444,37 @@ function hideAllComments() {
         });
     }
 }
-//скрыть комментарии
-function checkboxOff() {
-    delEmptyChats();
-    Array.from(document.querySelectorAll('.comments__form')).forEach(form => {
-        form.style.display = 'none';
-    })
+
+//показ комментариев и скрытие их
+for (let i = 0; i < commentsToggle.length; i++) {
+    commentsToggle[i].addEventListener('click', (event) => {
+        delEmptyChats();
+        const radioValue = event.target.value,
+            comments = document.querySelectorAll('.comments__form');
+        if (radioValue === 'off') {
+            commentsToggle[0].checked = false;
+            commentsToggle[1].checked = true;
+
+            comments.forEach(comment => {
+                hiddenElement(comment);
+            });
+        } else {
+            commentsToggle[0].checked = true;
+            commentsToggle[1].checked = false;
+
+            comments.forEach(comment => {
+                showElement(comment);
+            });
+        }
+
+    });
 }
 
-//показать комментарии
-function checkboxOn() {
-    delEmptyChats();
-    Array.from(document.querySelectorAll('.comments__form')).forEach(form => {
-        form.style.display = '';
-    })
-}
 
 //на обертке создаем формы комментариев
 function createCommentForm(event) {
     delEmptyChats();
-    if (!(unloadStorageItem('menu').querySelector('.comments').dataset.state === 'selected') || !appWrap.querySelector('#comments-on').checked) {
+    if (!(unloadStorageItem('menu').querySelector('.comments').dataset.state === 'selected') || !commentsToggle[0].checked) {
         return;
     }
     hideAllComments();
@@ -522,7 +536,7 @@ function addCommentWrapperCanvas() {
     // отображаем комментарии по клику поверх остальных окон комментариев
     wrapCanvas.addEventListener('click', event => {
         if (event.target.closest('form.comments__form')) {
-            Array.from(wrapCanvas.querySelectorAll('form.comments__form')).forEach(form => {
+            wrapCanvas.querySelectorAll('form.comments__form').forEach(form => {
                 form.style.zIndex = 2;
             });
             event.target.closest('form.comments__form').style.zIndex = 3;
@@ -530,36 +544,44 @@ function addCommentWrapperCanvas() {
     });
 }
 
+//функция генерирования формы комментария
+function templateJSengine(block) {
+    if ((block === undefined) || (block === null) || (block === false)) {
+        return document.createTextNode('');
+    }
+
+    if ((typeof block === 'string') || (typeof block === 'number') || (block === true)) {
+        return document.createTextNode(block);
+    }
+
+    if (Array.isArray(block)) {
+        return block.reduce(function (f, item) {
+            f.appendChild(templateJSengine(item));
+
+            return f;
+        }, document.createDocumentFragment());
+    }
+
+    const element = document.createElement(block.tag);
+
+    element.classList.add(...[].concat(block.cls || []));
+
+    if (block.attrs) {
+        Object.keys(block.attrs).forEach(key => {
+            element.setAttribute(key, block.attrs[key]);
+        });
+    }
+
+    if (block.content) {
+        element.appendChild(templateJSengine(block.content));
+    }
+
+    return element;
+}
+
 //Форма комментариев
 function addComment(x, y) {
     delEmptyChats();
-
-//функция гененрирования формы комментария
-    function templateJSengine(block) {
-        if (Array.isArray(block)) {
-            return block.reduce(function (f, item) {
-                f.appendChild(templateJSengine(item));
-
-                return f;
-            }, document.createDocumentFragment());
-        }
-
-        const element = document.createElement(block.tag);
-
-        element.classList.add(block.cls);
-
-        if (block.attrs) {
-            Object.keys(block.attrs).forEach(key => {
-                element.setAttribute(key, block.attrs[key]);
-            });
-        }
-
-        if (block.content) {
-            element.appendChild(templateJSengine(block.content));
-        }
-
-        return element;
-    }
 
 //форма комментрия, сформированная в виде объекта с ключами
     let html = {
@@ -651,7 +673,6 @@ function addComment(x, y) {
     commentForm.dataset.left = left;
     commentForm.dataset.top = top;
     hideAllComments();
-  // commentForm.querySelector('.comments__marker-checkbox').checked = true;
 
     hiddenElement(commentForm.querySelector('.loader').parentElement);
     //кнопка "закрыть"
@@ -662,7 +683,7 @@ function addComment(x, y) {
     });
 
 
-  let check = document.getElementsByClassName('comments__marker-checkbox');
+    let check = document.querySelectorAll('.comments__marker-checkbox');
 
 
     (function () {
@@ -707,7 +728,7 @@ function addComment(x, y) {
             .then(result => result.json())
             .catch(e => {
                 console.log(e);
-                commentForm.querySelector('.loader').parentElement.style.display = 'none';
+                hiddenElement(commentForm.querySelector('.loader').parentElement);
             });
     }
 
@@ -725,11 +746,11 @@ function refreshCommentForm(comment) {
         showComments[id] = comment[id];
         let requiredNewForm = true;
 
-        Array.from(appWrap.querySelectorAll('.comments__form')).forEach(form => {
+        appWrap.querySelectorAll('.comments__form').forEach(form => {
 
             //добавляем сообщение в форму с заданными координатами left и top
             if (+form.dataset.left === showComments[id].left && +form.dataset.top === showComments[id].top) {
-                form.querySelector('.loader').parentElement.style.display = 'none';
+                hiddenElement(form.querySelector('.loader').parentElement);
                 addingCommentForm(comment[id], form);
                 requiredNewForm = false;
             }
@@ -743,8 +764,8 @@ function refreshCommentForm(comment) {
             newForm.style.top = comment[id].top + 'px';
             wrapCanvas.appendChild(newForm);
             addingCommentForm(comment[id], newForm);
-            if (!appWrap.querySelector('#comments-on').checked) {
-                newForm.style.display = 'none';
+            if (!commentsToggle[0].checked) {
+                hiddenElement(newForm);
             }
         }
     });
@@ -755,21 +776,33 @@ function refreshCommentForm(comment) {
 function addingCommentForm(msg, form) {
     let divLoaderParent = form.querySelector('.loader').parentElement;
 
-    const divMessageNew = document.createElement('div');
-    divMessageNew.classList.add('comment');
-    divMessageNew.dataset.timestamp = msg.timestamp;
+    let msgElTemplate = {
+        tag: 'div',
+        cls: 'comment',
+        attrs: {
+            'data-timestamp': msg.timestamp
+        },
+        content: [
+            {
+                tag: 'p',
+                cls: 'comment__time',
+                content: giveTime(msg.timestamp)
+            }
+        ]
+    };
 
-    const timeComment = document.createElement('p');
-    timeComment.classList.add('comment__time');
-    timeComment.textContent = giveTime(msg.timestamp);
-    divMessageNew.appendChild(timeComment);
+    msg.message.split('\n').forEach(mesg => {
+        if (!mesg) {
+            msgElTemplate.content.push({tag: 'br'});
+        }
+        msgElTemplate.content.push({
+            tag: 'p',
+            cls: 'comment__message',
+            content: mesg
+        });
+    });
 
-    const messageComment = document.createElement('p');
-    messageComment.classList.add('comment__message');
-    messageComment.textContent = msg.message;
-    divMessageNew.appendChild(messageComment);
-
-    form.querySelector('.comments__body').insertBefore(divMessageNew, divLoaderParent);
+    form.querySelector('.comments__body').insertBefore(templateJSengine(msgElTemplate), divLoaderParent);
     form.classList.add('containsMsg');
 }
 
