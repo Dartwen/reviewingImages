@@ -126,7 +126,6 @@ function showElement(item) {
         item.classList.add('messageImg')
     }
     item.classList.remove('hidden');
-
 }
 
 getTheItemInTheStore('menu');
@@ -249,8 +248,11 @@ canvas.addEventListener("mouseup", () => {
     sketch = false;
 });
 
+
 canvas.addEventListener('mouseleave', () => {
+    unloadStorageItem('menu').style.zIndex = '1';
     sketch = false;
+
 });
 
 canvas.addEventListener("mousemove", (event) => {
@@ -260,6 +262,10 @@ canvas.addEventListener("mousemove", (event) => {
         redraw = true;
         cleanSendMask();
     }
+});
+
+document.addEventListener('mousedown', () => {
+    unloadStorageItem('menu').style.zIndex = '1';
 });
 
 const cleanSendMask = clean(maskStatus, 1000);
