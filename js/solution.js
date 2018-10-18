@@ -264,7 +264,7 @@ canvas.addEventListener("mousemove", (event) => {
     }
 });
 
-document.addEventListener('mousedown', () => {
+document.addEventListener('mouseup', () => {
     unloadStorageItem('menu').style.zIndex = '1';
 });
 
