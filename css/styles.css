@@ -93,6 +93,35 @@ body {
     display: inline !important;
 }
 
+.add-zindex-zero {
+    z-index: 0 !important;
+}
+
+.add-zindex-two {
+    z-index: 2;
+}
+
+.add-zindex-three {
+    z-index: 3 !important;
+}
+
+.canvas {
+    position: absolute;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: block;
+    top: 0;
+    left: 0;
+}
+
+.wrap-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+}
 /* ~~~~~~~~~~~~~~~~~~~~~~~~~~ иконки на панели ~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
 .drag {

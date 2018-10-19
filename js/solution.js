@@ -244,20 +244,25 @@ canvas.addEventListener("mousedown", (event) => {
 });
 
 canvas.addEventListener("mouseup", () => {
-    unloadStorageItem('menu').style.zIndex = '1';
-    sketch = false;
+    if (unloadStorageItem('menu').classList.contains('add-zindex-zero')){
+        unloadStorageItem('menu').classList.remove('add-zindex-zero');
+    }
+     sketch = false;
 });
 
 
 canvas.addEventListener('mouseleave', () => {
-    unloadStorageItem('menu').style.zIndex = '1';
+    if(unloadStorageItem('menu').classList.contains('add-zindex-zero')){
+        unloadStorageItem('menu').classList.remove('add-zindex-zero');
+    }
+
     sketch = false;
 
 });
 
 canvas.addEventListener("mousemove", (event) => {
     if (sketch) {
-        unloadStorageItem('menu').style.zIndex = '0';
+        unloadStorageItem('menu').classList.add('add-zindex-zero');
         traces[traces.length - 1].push(doDot(event.offsetX, event.offsetY));
         redraw = true;
         cleanSendMask();
@@ -265,7 +270,10 @@ canvas.addEventListener("mousemove", (event) => {
 });
 
 document.addEventListener('mouseup', () => {
-    unloadStorageItem('menu').style.zIndex = '1';
+    if(unloadStorageItem('menu').classList.contains('add-zindex-zero')){
+        unloadStorageItem('menu').classList.remove('add-zindex-zero');
+    }
+
 });
 
 const cleanSendMask = clean(maskStatus, 1000);
@@ -289,7 +297,10 @@ function fileDownload() {
     unloadStorageItem('menu').appendChild(fileCall);
 
     fileCall.addEventListener('change', (event) => {
-        const array = Array.from(event.currentTarget.files);
+        let array = [];
+        for (let i = 0; i < event.currentTarget.files.length; i++) {
+          array.push(event.currentTarget.files[i]);
+        }
         if (selectedImage.dataset.load === 'load') {
             deleteComment();
             traces = [];
@@ -304,8 +315,10 @@ function fileDownload() {
 function dragDropFile() {
     event.preventDefault();
     hiddenElement(unloadStorageItem('error'));
-    const array = Array.from(event.dataTransfer.files);
-
+    let array = [];
+    for (let i =0; i < event.dataTransfer.files.length; i++) {
+        array.push(event.dataTransfer.files[i]);
+    }
 
     //если повторно дропаем файл выдаёт ошибку
     switch (selectedImage.dataset.load) {
@@ -494,13 +507,7 @@ function buildCanvas() {
     const height = getComputedStyle(appWrap.querySelector('.current-image')).height.slice(0, -2);
     canvas.width = width;
     canvas.height = height;
-    canvas.style.zIndex = '1';
-    canvas.style.position = 'absolute';
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
+    canvas.className = 'canvas';
     wrapCanvas.appendChild(canvas);
 }
 
@@ -528,24 +535,25 @@ function delEmptyChats(form = null) {
 function addCommentWrapperCanvas() {
     const width = getComputedStyle(appWrap.querySelector('.current-image')).width;
     const height = getComputedStyle(appWrap.querySelector('.current-image')).height;
-    wrapCanvas.style.cssText = `
-		width: ${width};
-		height: ${height};
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		display: block;
-	`;
+    wrapCanvas.style.width = width;
+    wrapCanvas.style.height = height;
+    wrapCanvas.className = 'wrap-canvas';
     appWrap.appendChild(wrapCanvas);
 
     // отображаем комментарии по клику поверх остальных окон комментариев
     wrapCanvas.addEventListener('click', event => {
         if (event.target.closest('form.comments__form')) {
             wrapCanvas.querySelectorAll('form.comments__form').forEach(form => {
-                form.style.zIndex = 2;
+                form.classList.add('add-zindex-two');
+                if (form.classList.contains('add-zindex-three')){
+                    form.classList.remove('add-zindex-three');
+                }
             });
-            event.target.closest('form.comments__form').style.zIndex = 3;
+
+            event.target.closest('form.comments__form').classList.add('add-zindex-three');
+            if(event.target.closest('form.comments__form').classList.contains('add-zindex-two')){
+                event.target.closest('form.comments__form').classList.remove('add-zindex-two');
+            }
         }
     });
 }
