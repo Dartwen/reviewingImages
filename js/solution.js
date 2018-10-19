@@ -397,7 +397,6 @@ function getFileInfo(id) {
 
     webSocket();
     appendBackdrop(dataGet);
-    unloadStorageItem('burger').style.cssText = ``;
     displayMenu();
 
     selectedImage.addEventListener('load', () => {
@@ -679,11 +678,9 @@ function addComment(x, y) {
     let commentForm = document.body.appendChild(templateJSengine(html));
     const left = x - 22;
     const top = y - 14;
-    commentForm.style.cssText = `
-		top: ${top}px;
-		left: ${left}px;
-		z-index: 2;
-	`;
+    commentForm.style.top = `${top}px`;
+    commentForm.style.left = `${left}px`;
+    commentForm.classList.add('add-zindex-two');
     commentForm.dataset.left = left;
     commentForm.dataset.top = top;
     hideAllComments();
