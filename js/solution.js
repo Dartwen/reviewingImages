@@ -133,10 +133,8 @@ getTheItemInTheStore('burger');
 getTheItemInTheStore('error');
 
 //Первый режим - режим Публикации
-selectedImage.src = '';//без фона
 //убираем меню режима Публикации
 unloadStorageItem('menu').dataset.state = 'initial';
-appWrap.dataset.state = '';
 //скрываем бургер
 hiddenElement(unloadStorageItem('burger'));
 //убираем комментарии в режиме публикации
